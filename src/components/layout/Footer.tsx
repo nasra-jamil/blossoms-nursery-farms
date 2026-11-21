@@ -26,7 +26,7 @@ export function Footer() {
             <span className="font-display text-2xl">{site.name}</span>
           </Link>
           <p className="mt-5 max-w-xs text-sm leading-relaxed text-cream/70">
-            A family-run nursery growing healthy, hand-selected plants for homes, balconies and gardens across Pakistan.
+            A family-run nursery in Pattoki, growing healthy, hand-selected plants for homes, balconies and gardens across Pakistan.
             Order in a message — we&apos;ll handle the rest.
           </p>
           <div className="mt-6 flex gap-3">
@@ -115,8 +115,8 @@ export function Footer() {
 
       <div className="relative border-t border-cream/10">
         <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 pb-24 text-xs text-cream/50 sm:flex-row sm:justify-between sm:px-6 sm:pb-6 lg:px-8">
-          <p>© {year} {site.name} Plant Nursery. All rights reserved.</p>
-          <p>Grown with care in Pakistan · Orders via WhatsApp</p>
+          <p>© {year} {site.name}, {site.city}. All rights reserved.</p>
+          <p>Grown with care in Pattoki · Orders via WhatsApp</p>
         </div>
       </div>
     </footer>

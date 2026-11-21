@@ -16,8 +16,6 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
-  // The homepage hero is dark, so the bar starts transparent with light text there.
-  const overHero = pathname === "/" && !scrolled && !open;
 
   useMotionValueEvent(scrollY, "change", (y) => setScrolled(y > 24));
 
@@ -37,9 +35,7 @@ export function Navbar() {
       <div
         className={cn(
           "transition-all duration-500",
-          scrolled || open || pathname !== "/"
-            ? "border-b border-forest/10 bg-cream/85 backdrop-blur-xl"
-            : "border-b border-transparent bg-transparent",
+          scrolled || open ? "border-b border-forest/10 bg-cream/85 backdrop-blur-xl" : "border-b border-transparent bg-cream",
         )}
       >
         <nav
@@ -52,13 +48,13 @@ export function Navbar() {
           <Link href="/" className="flex items-center gap-2.5" aria-label={`${site.name} home`}>
             <LogoMark size={34} />
             <span className="leading-none">
-              <span className={cn("block font-display text-xl tracking-tight", overHero ? "text-cream" : "text-forest")}>
-                {site.name}
+              <span className={cn("block font-display text-[26px] tracking-tight", "text-forest")}>
+                {site.shortName}
               </span>
               <span
                 className={cn(
-                  "block text-[10px] font-semibold tracking-[0.28em] uppercase",
-                  overHero ? "text-cream/70" : "text-moss",
+                  "block text-[14px] font-semibold uppercase",
+                  "text-moss",
                 )}
               >
                 {site.tagline}
@@ -73,14 +69,14 @@ export function Navbar() {
                   href={link.href}
                   className={cn(
                     "relative rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                    overHero ? "text-cream/85 hover:text-cream" : "text-charcoal/75 hover:text-forest",
-                    isActive(link.href) && (overHero ? "text-cream" : "text-forest"),
+                    "text-charcoal/75 hover:text-forest",
+                    isActive(link.href) && "text-forest",
                   )}
                 >
                   {isActive(link.href) && (
                     <motion.span
                       layoutId="nav-pill"
-                      className={cn("absolute inset-0 -z-10 rounded-full", overHero ? "bg-cream/15" : "bg-olive/70")}
+                      className={cn("absolute inset-0 -z-10 rounded-full", "bg-olive/70")}
                       transition={{ type: "spring", stiffness: 350, damping: 30 }}
                     />
                   )}
@@ -99,7 +95,7 @@ export function Navbar() {
               whileTap={{ scale: 0.96 }}
               className={cn(
                 "hidden min-h-11 items-center gap-2 rounded-full px-5 text-sm font-semibold transition-colors sm:inline-flex",
-                overHero ? "bg-cream text-forest hover:bg-white" : "bg-forest text-cream hover:bg-forest-deep",
+                "bg-forest text-cream hover:bg-forest-deep",
               )}
             >
               <WhatsAppIcon size={18} />
@@ -113,7 +109,7 @@ export function Navbar() {
               aria-label={open ? "Close menu" : "Open menu"}
               className={cn(
                 "inline-flex size-11 items-center justify-center rounded-full transition-colors lg:hidden",
-                overHero ? "text-cream hover:bg-cream/10" : "text-forest hover:bg-olive/60",
+                "text-forest hover:bg-olive/60",
               )}
             >
               {open ? <X size={24} /> : <Menu size={24} />}

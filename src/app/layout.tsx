@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Manrope } from "next/font/google";
+import { Fraunces, Manrope, Oswald } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { Navbar } from "@/components/layout/Navbar";
@@ -14,6 +14,13 @@ const fraunces = Fraunces({
   display: "swap",
 });
 
+const oswald = Oswald({
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  variable: "--font-oswald",
+  display: "swap",
+});
+
 const manrope = Manrope({
   subsets: ["latin"],
   variable: "--font-manrope",
@@ -23,8 +30,8 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.name} — Premium Plant Nursery | Order Plants on WhatsApp`,
-    template: `%s | ${site.name} Plant Nursery`,
+    default: `${site.name} — Plant Nursery in Pattoki | Order Plants on WhatsApp`,
+    template: `%s | ${site.name}`,
   },
   description: site.description,
   keywords: [
@@ -34,7 +41,9 @@ export const metadata: Metadata = {
     "balcony plants",
     "fruit plants",
     "succulents",
-    "plants Lahore",
+    "plant nursery Pattoki",
+    "Pattoki nursery",
+    "Blossoms Nursery Farms",
     "WhatsApp plant order",
   ],
   openGraph: {
@@ -62,7 +71,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${manrope.variable}`}>
+    <html lang="en" className={`${fraunces.variable} ${manrope.variable} ${oswald.variable}`}>
       <body className="min-h-dvh overflow-x-clip">
         <a
           href="#main"

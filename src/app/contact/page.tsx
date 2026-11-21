@@ -9,7 +9,7 @@ import { generalWhatsappUrl } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
   title: "Contact Us",
-  description: `Get in touch with ${site.name} Plant Nursery on WhatsApp, email or visit our nursery in Lahore.`,
+  description: `Get in touch with ${site.name} on WhatsApp or email, or visit our nursery in ${site.city}.`,
   alternates: { canonical: "/contact" },
 };
 
@@ -69,7 +69,6 @@ export default function ContactPage() {
           <Reveal delay={0.08}>
             <Card icon={Clock} title="Opening hours">
               <p>{site.hours}</p>
-              <p className="text-sm">Sunday by appointment</p>
             </Card>
           </Reveal>
           <Reveal delay={0.16}>

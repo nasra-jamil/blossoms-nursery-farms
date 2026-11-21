@@ -1,4 +1,4 @@
-# Sabzaar — Plant Nursery Website
+# Blossoms Nursery Farms — Plant Nursery Website (Pattoki)
 
 A premium, responsive plant nursery storefront built with **Next.js 15 (App Router)**, **React 19**, **TypeScript**, **Tailwind CSS v4**, **Framer Motion** and **Lucide** icons. All purchases happen over **WhatsApp**. There's no cart and no checkout.
 

@@ -27,15 +27,15 @@ export function FeaturedPlants({ plants, categories }: { plants: Plant[]; catego
 
   return (
     <section className="bg-olive/35">
-      <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
+      <div className="mx-auto max-w-7xl px-4 pt-5 pb-20 sm:px-6 sm:pt-6 lg:px-8 lg:pb-28">
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <Button href="/shop" variant="primary" className="group shrink-0 self-start md:self-auto">
             Shop all plants <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
           </Button>
         </div>
 
-        <div className="mt-12 grid gap-8 lg:grid-cols-[17rem_1fr] lg:gap-10">
-          <aside>
+        <div className="mt-5 grid gap-5 lg:grid-cols-[17rem_1fr] lg:gap-10">
+          <aside className="min-w-0">
             <CategorySidebar
               categories={categories}
               counts={counts}
@@ -45,7 +45,7 @@ export function FeaturedPlants({ plants, categories }: { plants: Plant[]; catego
             />
           </aside>
 
-          <div>
+          <div className="min-w-0">
             <PlantGrid plants={visible} animateKey={active} columns={3} />
             {list.length > LIMIT && (
               <div className="mt-10 flex justify-center">

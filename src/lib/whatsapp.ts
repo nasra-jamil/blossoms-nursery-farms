@@ -18,6 +18,13 @@ export function plantOrderUrl(plant: Pick<Plant, "name" | "price" | "slug">) {
   return whatsappUrl(plantOrderMessage(plant));
 }
 
+export function serviceQuoteUrl(serviceTitle: string) {
+  return whatsappUrl(
+    `Hi! I'm interested in your ${serviceTitle} service. Could you please share details and a quote? ` +
+      `My location / plot size: `,
+  );
+}
+
 export const generalWhatsappUrl = whatsappUrl(
   "Hi! I'd love some help choosing the right plants for my space.",
 );

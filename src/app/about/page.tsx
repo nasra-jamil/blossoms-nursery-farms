@@ -9,7 +9,7 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "About Us",
-  description: `Meet ${site.name} — a family-run plant nursery growing healthy, climate-ready plants for homes and gardens across Pakistan.`,
+  description: `Meet ${site.name} — a family-run plant nursery in ${site.city} growing healthy, climate-ready plants for homes and gardens across Pakistan.`,
   alternates: { canonical: "/about" },
 };
 
@@ -29,7 +29,7 @@ export default function AboutPage() {
             Rooted in <em className="text-moss italic">care</em>
           </>
         }
-        description={`${site.name} began as a small backyard nursery with a simple belief: everyone deserves a little more green in their life.`}
+        description={`${site.name} began as a small nursery in ${site.city}, Pakistan's city of flowers, with a simple belief: everyone deserves a little more green in their life.`}
       />
 
       <section className="mx-auto grid max-w-7xl gap-12 px-4 pb-24 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-20 lg:px-8">

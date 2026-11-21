@@ -1,13 +1,16 @@
 export const site = {
-  name: "Sabzaar",
-  tagline: "Plant Nursery",
+  name: "Blossoms Nursery Farms",
+  /** Short form used in the logo lockup */
+  shortName: "BLOSSOMS",
+  tagline: "Nursery Farms Pattoki",
+  city: "Pattoki",
   description:
-    "Sabzaar is a premium plant nursery bringing healthy indoor, balcony, outdoor, flowering and fruit plants to homes across Pakistan. Browse our collection and order easily on WhatsApp.",
+    "Blossoms Nursery Farms is a plant nursery in Pattoki — Pakistan's city of flowers — bringing healthy indoor, balcony, outdoor, flowering and fruit plants to homes across Pakistan. Browse our collection and order easily on WhatsApp.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
-  whatsappNumber: (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "923001234567").replace(/\D/g, ""),
-  email: "hello@sabzaar.pk",
-  address: "Plot 14, Nursery Road, Lahore, Pakistan",
-  hours: "Mon – Sat, 9:00 am – 7:00 pm",
+  whatsappNumber: ("923024452109").replace(/\D/g, ""),
+  email: "blossomnurseryfarm@gmail.com",
+  address: "Pattoki, District Kasur, Punjab, Pakistan",
+  hours: "Mon – Sun, 8:00 am – 10:00 pm",
   social: {
     instagram: "https://instagram.com/",
     facebook: "https://facebook.com/",
@@ -26,6 +29,7 @@ export const navLinks = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Shop Plants" },
   { href: "/categories", label: "Categories" },
+  { href: "/services", label: "Services" },
   { href: "/about", label: "About Us" },
   { href: "/contact", label: "Contact" },
 ];
