@@ -6,14 +6,14 @@ import { WhyChooseUs } from "@/components/home/WhyChooseUs";
 import { GreenInspiration } from "@/components/home/GreenInspiration";
 import { Testimonials } from "@/components/home/Testimonials";
 import { ContactCTA } from "@/components/home/ContactCTA";
-import { getAllCategories, getCategoryCounts, getFeaturedPlants, getTestimonials } from "@/lib/catalog";
+import { getAllCategories, getAllPlants, getCategoryCounts, getTestimonials } from "@/lib/catalog";
 import { site } from "@/lib/site";
 
 export default async function HomePage() {
-  const [categories, counts, featured, testimonials] = await Promise.all([
+  const [categories, counts, plants, testimonials] = await Promise.all([
     getAllCategories(),
     getCategoryCounts(),
-    getFeaturedPlants(8),
+    getAllPlants(),
     getTestimonials(),
   ]);
 
@@ -33,9 +33,7 @@ export default async function HomePage() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <HeroSection />
-      <PlantGrowingAnimation />
-      <CategorySection categories={categories} counts={counts} />
-      <FeaturedPlants plants={featured} />
+      <FeaturedPlants plants={plants} categories={categories} />
       <WhyChooseUs />
       <GreenInspiration />
       <Testimonials items={testimonials} />

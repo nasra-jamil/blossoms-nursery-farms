@@ -229,7 +229,7 @@ export function ShopClient({ plants, categories }: { plants: Plant[]; categories
             <PlantGrid
               plants={results}
               animateKey={`${state.category}-${state.availability}-${state.sort}-${deferredQuery}`}
-              className="lg:grid-cols-3"
+              columns={3}
             />
           ) : (
             <div className="flex flex-col items-center rounded-[2rem] border border-dashed border-forest/20 px-6 py-20 text-center">
