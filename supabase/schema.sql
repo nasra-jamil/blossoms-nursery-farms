@@ -64,6 +64,12 @@ create trigger categories_touch before update on public.categories
 alter table public.categories enable row level security;
 alter table public.plants enable row level security;
 
+-- Newer Supabase projects don't expose SQL-created tables to the API
+-- automatically, so grant access explicitly — to the server's secret-key
+-- role only. The public anon/publishable roles get nothing.
+grant usage on schema public to service_role;
+grant select, insert, update, delete on table public.plants, public.categories to service_role;
+
 -- ── Photo storage ───────────────────────────────────────────────────────────
 -- Public bucket: anyone can VIEW images by URL; only the server can upload.
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)

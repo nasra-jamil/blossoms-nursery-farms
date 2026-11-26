@@ -13,7 +13,7 @@ export const site = {
   hours: "Mon – Sun, 8:00 am – 10:00 pm",
   social: {
     instagram: "https://instagram.com/",
-    facebook: "https://facebook.com/",
+    facebook: "https://www.facebook.com/share/1dYu7iuypK/",
   },
 };
 
