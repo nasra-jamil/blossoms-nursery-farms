@@ -17,6 +17,7 @@ export const site = {
   },
 };
 
+
 /** Formats the configured WhatsApp number for display, e.g. +92 300 1234567 */
 export function displayPhone(num = site.whatsappNumber) {
   if (num.startsWith("92") && num.length === 12) {
