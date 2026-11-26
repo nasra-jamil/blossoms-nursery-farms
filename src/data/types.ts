@@ -1,12 +1,5 @@
-export type CategorySlug =
-  | "indoor-plants"
-  | "balcony-plants"
-  | "outdoor-plants"
-  | "flowering-plants"
-  | "trees"
-  | "fruit-plants"
-  | "succulents-cacti"
-  | "herbs-vegetables";
+/** Category slugs are managed in the admin, so any URL-safe string is valid. */
+export type CategorySlug = string;
 
 export type Availability = "in-stock" | "low-stock" | "out-of-stock";
 export type Maintenance = "Easy" | "Moderate" | "Expert";
@@ -37,6 +30,8 @@ export interface Plant {
   placement: Placement[];
   care: string[];
   featured?: boolean;
+  /** Filled in by the data layer for display; not stored. */
+  categoryName?: string;
 }
 
 export interface Category {

@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import type { Plant } from "@/data/types";
-import { categoryName } from "@/data/categories";
 import { cn, formatPrice } from "@/lib/format";
 import { staggerItem } from "@/components/ui/Reveal";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
@@ -43,7 +42,7 @@ export function PlantCard({ plant, priority = false }: { plant: Plant; priority?
 
       <div className="flex flex-1 flex-col p-3.5 sm:p-5">
         <p className="text-[10px] font-semibold tracking-[0.18em] text-moss uppercase sm:text-[11px]">
-          {categoryName(plant.category)}
+          {plant.categoryName ?? plant.category}
         </p>
         <h3 className="mt-1.5 font-display text-lg leading-tight text-forest sm:text-xl">
           <Link href={`/plants/${plant.slug}`} className="hover:underline hover:decoration-sage hover:underline-offset-4">

@@ -1,12 +1,12 @@
 export const site = {
-  name: "Blossoms Nursery Farms",
+  name: "Blossoms Nursery Farm",
   /** Short form used in the logo lockup */
   shortName: "BLOSSOMS",
-  tagline: "Nursery Farms Pattoki",
+  tagline: "Nursery Farm Pattoki",
   city: "Pattoki",
   description:
-    "Blossoms Nursery Farms is a plant nursery in Pattoki — Pakistan's city of flowers — bringing healthy indoor, balcony, outdoor, flowering and fruit plants to homes across Pakistan. Browse our collection and order easily on WhatsApp.",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+    "Blossoms Nursery Farm is a plant nursery in Pattoki — Pakistan's city of flowers — bringing healthy indoor, balcony, outdoor, flowering and fruit plants to homes across Pakistan. Browse our collection and order easily on WhatsApp.",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://blossoms-nursery-farm.vercel.app/",
   whatsappNumber: ("923024452109").replace(/\D/g, ""),
   email: "blossomnurseryfarm@gmail.com",
   address: "Pattoki, District Kasur, Punjab, Pakistan",

@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { Clock, Mail, MapPin } from "lucide-react";
-import { categories } from "@/data/categories";
+import { getAllCategories } from "@/lib/catalog";
 import { displayPhone, navLinks, site } from "@/lib/site";
 import { generalWhatsappUrl } from "@/lib/whatsapp";
 import { FacebookIcon, InstagramIcon, LogoMark, WhatsAppIcon } from "@/components/ui/icons";
 
-export function Footer() {
+export async function Footer() {
+  const categories = await getAllCategories();
   const year = new Date().getFullYear();
 
   return (

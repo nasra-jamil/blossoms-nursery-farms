@@ -6,6 +6,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Providers } from "@/components/layout/Providers";
 import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
+import { PublicOnly } from "@/components/layout/PublicOnly";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -43,7 +44,7 @@ export const metadata: Metadata = {
     "succulents",
     "plant nursery Pattoki",
     "Pattoki nursery",
-    "Blossoms Nursery Farms",
+    "Blossoms Nursery Farm",
     "WhatsApp plant order",
   ],
   openGraph: {
@@ -80,10 +81,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <Providers>
-          <Navbar />
+          <PublicOnly>
+            <Navbar />
+          </PublicOnly>
           <main id="main">{children}</main>
-          <Footer />
-          <FloatingWhatsApp />
+          <PublicOnly>
+            <Footer />
+            <FloatingWhatsApp />
+          </PublicOnly>
         </Providers>
       </body>
     </html>

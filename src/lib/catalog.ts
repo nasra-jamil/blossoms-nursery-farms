@@ -1,30 +1,44 @@
 /**
- * Data-access layer. Pages only talk to these async functions, so swapping the
- * static sample data for a CMS (Sanity, Contentful) or database later only
- * requires changing this file.
+ * Data-access layer. Pages only talk to these async functions; storage lives in
+ * `src/lib/server/store.ts`, so moving to a database only changes that file.
  */
-import { plants } from "@/data/plants";
-import { categories } from "@/data/categories";
+import "server-only";
+import type { Category, Plant } from "@/data/types";
 import { testimonials } from "@/data/testimonials";
-import type { CategorySlug } from "@/data/types";
+import { readCatalog } from "./server/store";
+
+function withCategoryNames(plants: Plant[], categories: Category[]): Plant[] {
+  const names = new Map(categories.map((c) => [c.slug, c.name]));
+  return plants.map((p) => ({ ...p, categoryName: names.get(p.category) ?? p.category }));
+}
+
+async function load() {
+  const { plants, categories } = await readCatalog();
+  return { plants: withCategoryNames(plants, categories), categories };
+}
 
 export async function getAllPlants() {
-  return plants;
+  return (await load()).plants;
 }
 
 export async function getFeaturedPlants(limit = 8) {
-  return plants.filter((p) => p.featured).slice(0, limit);
+  return (await getAllPlants()).filter((p) => p.featured).slice(0, limit);
 }
 
 export async function getPlantBySlug(slug: string) {
-  return plants.find((p) => p.slug === slug) ?? null;
+  return (await getAllPlants()).find((p) => p.slug === slug) ?? null;
 }
 
-export async function getPlantsByCategory(slug: CategorySlug) {
-  return plants.filter((p) => p.category === slug);
+export async function getPlantById(id: string) {
+  return (await getAllPlants()).find((p) => p.id === id) ?? null;
+}
+
+export async function getPlantsByCategory(slug: string) {
+  return (await getAllPlants()).filter((p) => p.category === slug);
 }
 
 export async function getRelatedPlants(slug: string, limit = 4) {
+  const plants = await getAllPlants();
   const plant = plants.find((p) => p.slug === slug);
   if (!plant) return [];
   const sameCategory = plants.filter((p) => p.slug !== slug && p.category === plant.category);
@@ -38,19 +52,18 @@ export async function getRelatedPlants(slug: string, limit = 4) {
 }
 
 export async function getAllCategories() {
-  return categories;
+  return (await load()).categories;
 }
 
 export async function getCategoryBySlug(slug: string) {
-  return categories.find((c) => c.slug === slug) ?? null;
+  return (await getAllCategories()).find((c) => c.slug === slug) ?? null;
 }
 
-export { categoryName as getCategoryName } from "@/data/categories";
-
 export async function getCategoryCounts() {
+  const { plants, categories } = await load();
   return Object.fromEntries(
     categories.map((c) => [c.slug, plants.filter((p) => p.category === c.slug).length]),
-  ) as Record<CategorySlug, number>;
+  ) as Record<string, number>;
 }
 
 export async function getTestimonials() {

@@ -1,4 +1,4 @@
-# Blossoms Nursery Farms — Plant Nursery Website (Pattoki)
+# Blossoms Nursery Farm — Plant Nursery Website (Pattoki)
 
 A premium, responsive plant nursery storefront built with **Next.js 15 (App Router)**, **React 19**, **TypeScript**, **Tailwind CSS v4**, **Framer Motion** and **Lucide** icons. All purchases happen over **WhatsApp**. There's no cart and no checkout.
 
@@ -71,3 +71,21 @@ Out-of-stock plants change their button to "Ask on WhatsApp". A floating WhatsAp
 - **Contact details** (address, email, social links) in `src/lib/site.ts` are placeholders.
 - **Photos** are Unsplash stock images under the Unsplash License. Swap in your own nursery photography where you can. The mango sapling uses a fruit photo, not a photo of the plant.
 - **Prices, stock and plant data** are realistic samples, not real inventory.
+
+## Admin panel (`/admin`)
+
+Manage plants and categories at **`/admin`**: view, search, add, edit and delete them, and upload photos.
+
+1. In `.env.local` set:
+   - `ADMIN_PASSWORD`: the sign-in password. If it's empty, the admin is disabled.
+   - `ADMIN_SESSION_SECRET`: a long random string, e.g. the output of `openssl rand -hex 32`.
+2. Restart the server, open `/admin` and sign in.
+
+**How it works**
+- The catalogue is saved in `data/catalog.json`. On first run it's created from the sample data in `src/data/plants.ts` and `src/data/categories.ts`. After that, **the admin is the source of truth**: editing those `.ts` files no longer changes the site. To start over from them, delete `data/catalog.json`.
+- Uploaded photos go to `data/uploads/` and are served at `/uploads/<file>`. Only JPG, PNG, WebP and AVIF up to 5 MB are accepted, and the real file type is checked.
+- Changes appear on the public site straight away.
+- A category can't be deleted while it still has plants. Renaming a category's URL slug moves its plants with it.
+- `/admin` is protected by middleware. Each server action also checks the session itself, sign-in uses a signed httpOnly cookie that lasts 8 hours, and admin pages are marked `noindex`.
+
+**Hosting.** `data/` must live on a **persistent disk**, such as a VPS, Docker volume or Render/Railway disk. Back it up, because it's git-ignored. Serverless hosts like Vercel don't keep file writes. On those, replace `src/lib/server/store.ts` (and the upload action) with a database or object-storage adapter. Nothing else needs to change.

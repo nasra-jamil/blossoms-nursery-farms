@@ -11,6 +11,7 @@ import {
   Shrub,
   Sofa,
   Sparkles,
+  Leaf,
   TreeDeciduous,
   Trees,
   type LucideIcon,
@@ -20,7 +21,7 @@ import { cn } from "@/lib/format";
 
 export type SidebarValue = CategorySlug | "featured";
 
-const icons: Record<SidebarValue, LucideIcon> = {
+const icons: Partial<Record<SidebarValue, LucideIcon>> = {
   featured: Sparkles,
   "indoor-plants": Sofa,
   "balcony-plants": Fence,
@@ -55,7 +56,7 @@ export function CategorySidebar({ categories, counts, featuredCount, active, onS
       {/* Mobile / tablet: chips */}
       <ul className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:-mx-6 sm:px-6 lg:hidden">
         {items.map(({ value, label }) => {
-          const Icon = icons[value];
+          const Icon = icons[value] ?? Leaf; // admin-created categories get a leaf
           const isActive = value === active;
           return (
             <li key={value} className="shrink-0">
@@ -81,7 +82,7 @@ export function CategorySidebar({ categories, counts, featuredCount, active, onS
         <p className="px-3 pt-2 pb-3 text-xs font-semibold tracking-[0.2em] text-moss uppercase">Categories</p>
         <ul className="space-y-0.5">
           {items.map(({ value, label, count }) => {
-            const Icon = icons[value];
+            const Icon = icons[value] ?? Leaf; // admin-created categories get a leaf
             const isActive = value === active;
             return (
               <li key={value}>
