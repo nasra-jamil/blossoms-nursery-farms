@@ -1,8 +1,6 @@
 "use server";
 
 import { randomBytes } from "node:crypto";
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -15,7 +13,7 @@ import {
   createSessionToken,
   passwordMatches,
 } from "@/lib/server/session";
-import { UPLOAD_DIR, updateCatalog } from "@/lib/server/store";
+import { StoreConflictError, store } from "@/lib/server/store";
 import type { Category, Plant } from "@/data/types";
 
 export type ActionResult = { ok: true; id?: string } | { ok: false; error: string; fields?: Record<string, string> };
@@ -105,45 +103,63 @@ function refreshSite() {
   revalidatePath("/", "layout");
 }
 
+/** Turns storage conflicts into the same friendly errors the forms already show. */
+function conflictResult(err: unknown, what: "plant" | "category"): ActionResult {
+  if (err instanceof StoreConflictError) {
+    if (err.kind === "slug-taken") {
+      return { ok: false, error: `Another ${what} already uses this URL slug.`, fields: { slug: "Already in use" } };
+    }
+    if (err.kind === "category-missing") {
+      return { ok: false, error: "Choose a valid category.", fields: { category: "Unknown category" } };
+    }
+    return { ok: false, error: "This category still has plants. Move or delete them first." };
+  }
+  console.error(err);
+  return { ok: false, error: "Couldn't save right now. Please try again in a moment." };
+}
+
 /* -------------------------------------------------------------- plants */
 
 export async function savePlant(input: unknown): Promise<ActionResult> {
   await requireAdmin();
   const parsed = plantSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Please fix the highlighted fields.", fields: fieldErrors(parsed.error) };
-  const data = parsed.data;
+  const { id, ...rest } = parsed.data;
 
-  return updateCatalog((cat): ActionResult => {
-    if (!cat.categories.some((c) => c.slug === data.category)) {
-      return { ok: false, error: "Choose a valid category.", fields: { category: "Unknown category" } };
-    }
-    if (cat.plants.some((p) => p.slug === data.slug && p.id !== data.id)) {
-      return { ok: false, error: "Another plant already uses this URL slug.", fields: { slug: "Already in use" } };
-    }
-    const { id, ...rest } = data;
+  // Friendly pre-checks; the store/database enforces the same rules as a backstop.
+  const cat = await store().read();
+  if (!cat.categories.some((c) => c.slug === rest.category)) {
+    return { ok: false, error: "Choose a valid category.", fields: { category: "Unknown category" } };
+  }
+  if (cat.plants.some((p) => p.slug === rest.slug && p.id !== id)) {
+    return { ok: false, error: "Another plant already uses this URL slug.", fields: { slug: "Already in use" } };
+  }
+
+  try {
     if (id) {
-      const idx = cat.plants.findIndex((p) => p.id === id);
-      if (idx === -1) return { ok: false, error: "This plant no longer exists." };
-      cat.plants[idx] = { ...cat.plants[idx], ...rest, id } as Plant;
+      const found = await store().updatePlant({ ...rest, id } as Plant);
+      if (!found) return { ok: false, error: "This plant no longer exists." };
       refreshSite();
       return { ok: true, id };
     }
     const newId = `p-${Date.now().toString(36)}${randomBytes(2).toString("hex")}`;
-    cat.plants.unshift({ ...rest, id: newId } as Plant);
+    await store().insertPlant({ ...rest, id: newId } as Plant);
     refreshSite();
     return { ok: true, id: newId };
-  });
+  } catch (err) {
+    return conflictResult(err, "plant");
+  }
 }
 
 export async function deletePlant(id: string): Promise<ActionResult> {
   await requireAdmin();
-  return updateCatalog((cat): ActionResult => {
-    const before = cat.plants.length;
-    cat.plants = cat.plants.filter((p) => p.id !== id);
-    if (cat.plants.length === before) return { ok: false, error: "Plant not found." };
+  try {
+    if (!(await store().deletePlant(id))) return { ok: false, error: "Plant not found." };
     refreshSite();
     return { ok: true };
-  });
+  } catch (err) {
+    return conflictResult(err, "plant");
+  }
 }
 
 /* ---------------------------------------------------------- categories */
@@ -154,50 +170,52 @@ export async function saveCategory(input: unknown): Promise<ActionResult> {
   if (!parsed.success) return { ok: false, error: "Please fix the highlighted fields.", fields: fieldErrors(parsed.error) };
   const { originalSlug, ...data } = parsed.data;
 
-  return updateCatalog((cat): ActionResult => {
-    if (cat.categories.some((c) => c.slug === data.slug && c.slug !== originalSlug)) {
-      return { ok: false, error: "Another category already uses this URL slug.", fields: { slug: "Already in use" } };
-    }
+  const cat = await store().read();
+  if (cat.categories.some((c) => c.slug === data.slug && c.slug !== originalSlug)) {
+    return { ok: false, error: "Another category already uses this URL slug.", fields: { slug: "Already in use" } };
+  }
+
+  try {
     if (originalSlug) {
-      const idx = cat.categories.findIndex((c) => c.slug === originalSlug);
-      if (idx === -1) return { ok: false, error: "This category no longer exists." };
-      cat.categories[idx] = data as Category;
-      // Keep plants attached when the slug changes.
-      if (originalSlug !== data.slug) {
-        for (const p of cat.plants) if (p.category === originalSlug) p.category = data.slug;
-      }
+      // Plants move with a slug change (handled by the store / ON UPDATE CASCADE).
+      const found = await store().updateCategory(originalSlug, data as Category);
+      if (!found) return { ok: false, error: "This category no longer exists." };
     } else {
-      cat.categories.push(data as Category);
+      await store().insertCategory(data as Category);
     }
     refreshSite();
     return { ok: true, id: data.slug };
-  });
+  } catch (err) {
+    return conflictResult(err, "category");
+  }
 }
 
 export async function deleteCategory(categorySlug: string): Promise<ActionResult> {
   await requireAdmin();
-  return updateCatalog((cat): ActionResult => {
-    const inUse = cat.plants.filter((p) => p.category === categorySlug).length;
-    if (inUse > 0) {
-      return {
-        ok: false,
-        error: `This category still has ${inUse} plant${inUse === 1 ? "" : "s"}. Move or delete them first.`,
-      };
-    }
-    const before = cat.categories.length;
-    cat.categories = cat.categories.filter((c) => c.slug !== categorySlug);
-    if (cat.categories.length === before) return { ok: false, error: "Category not found." };
+  const cat = await store().read();
+  const inUse = cat.plants.filter((p) => p.category === categorySlug).length;
+  if (inUse > 0) {
+    return {
+      ok: false,
+      error: `This category still has ${inUse} plant${inUse === 1 ? "" : "s"}. Move or delete them first.`,
+    };
+  }
+  try {
+    if (!(await store().deleteCategory(categorySlug))) return { ok: false, error: "Category not found." };
     refreshSite();
     return { ok: true };
-  });
+  } catch (err) {
+    return conflictResult(err, "category");
+  }
 }
 
 /* -------------------------------------------------------------- uploads */
 
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+const MIME = { jpg: "image/jpeg", png: "image/png", webp: "image/webp", avif: "image/avif" } as const;
 
 /** Detects the real image type from its first bytes (don't trust the browser's MIME). */
-function sniffImage(buf: Buffer): "jpg" | "png" | "webp" | "avif" | null {
+function sniffImage(buf: Buffer): keyof typeof MIME | null {
   if (buf.length < 12) return null;
   if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return "jpg";
   if (buf.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "png";
@@ -215,7 +233,10 @@ export async function uploadImage(formData: FormData): Promise<{ ok: true; url: 
   const ext = sniffImage(buf);
   if (!ext) return { ok: false, error: "Only JPG, PNG, WebP or AVIF images are allowed." };
   const name = `${randomBytes(12).toString("hex")}.${ext}`;
-  await fs.mkdir(UPLOAD_DIR, { recursive: true });
-  await fs.writeFile(path.join(UPLOAD_DIR, name), buf);
-  return { ok: true, url: `/uploads/${name}` };
+  try {
+    return { ok: true, url: await store().saveImage(name, buf, MIME[ext]) };
+  } catch (err) {
+    console.error(err);
+    return { ok: false, error: "Upload failed. Please try again." };
+  }
 }

@@ -1,6 +1,6 @@
 /**
  * Data-access layer. Pages only talk to these async functions; storage lives in
- * `src/lib/server/store.ts`, so moving to a database only changes that file.
+ * `src/lib/server/store/` (Supabase when configured, otherwise a local JSON file).
  */
 import "server-only";
 import type { Category, Plant } from "@/data/types";

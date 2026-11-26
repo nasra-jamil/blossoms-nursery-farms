@@ -81,11 +81,16 @@ Manage plants and categories at **`/admin`**: view, search, add, edit and delete
    - `ADMIN_SESSION_SECRET`: a long random string, e.g. the output of `openssl rand -hex 32`.
 2. Restart the server, open `/admin` and sign in.
 
+**Where the data lives**
+- **Supabase (production, and anywhere `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` are set):** plants and categories are stored in Postgres tables, and uploaded photos go to the public `plant-images` storage bucket. Set it up once by running `supabase/schema.sql` and then `supabase/seed.sql` in the Supabase SQL Editor.
+- **Local file (fallback when Supabase isn't configured):** `data/catalog.json` is created from the sample data in `src/data/`, and uploads go to `data/uploads/`.
+- Either way, the admin is the source of truth. Editing `src/data/*.ts` doesn't change a live catalogue.
+
 **How it works**
-- The catalogue is saved in `data/catalog.json`. On first run it's created from the sample data in `src/data/plants.ts` and `src/data/categories.ts`. After that, **the admin is the source of truth**: editing those `.ts` files no longer changes the site. To start over from them, delete `data/catalog.json`.
-- Uploaded photos go to `data/uploads/` and are served at `/uploads/<file>`. Only JPG, PNG, WebP and AVIF up to 5 MB are accepted, and the real file type is checked.
-- Changes appear on the public site straight away.
+- Changes appear on the public site straight away (`revalidatePath`).
 - A category can't be deleted while it still has plants. Renaming a category's URL slug moves its plants with it.
 - `/admin` is protected by middleware. Each server action also checks the session itself, sign-in uses a signed httpOnly cookie that lasts 8 hours, and admin pages are marked `noindex`.
+- Photo uploads are limited to JPG, PNG, WebP and AVIF up to 5 MB, and the real file type is checked.
+- Database tables have Row Level Security turned on with no policies, so only the server (using the secret key) can read or write them.
 
-**Hosting.** `data/` must live on a **persistent disk**, such as a VPS, Docker volume or Render/Railway disk. Back it up, because it's git-ignored. Serverless hosts like Vercel don't keep file writes. On those, replace `src/lib/server/store.ts` (and the upload action) with a database or object-storage adapter. Nothing else needs to change.
+**Hosting.** On Vercel, use Supabase: add `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (mark it Sensitive), `ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET` under Settings → Environment Variables, then redeploy. The local-file fallback only works on hosts with a persistent disk.
