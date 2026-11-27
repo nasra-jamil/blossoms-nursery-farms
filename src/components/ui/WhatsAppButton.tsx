@@ -7,7 +7,7 @@ import { generalWhatsappUrl, plantOrderUrl } from "@/lib/whatsapp";
 import { WhatsAppIcon } from "./icons";
 
 type Props = {
-  plant?: Pick<Plant, "name" | "price" | "slug" | "availability">;
+  plant?: Pick<Plant, "name" | "price" | "slug" | "availability" | "discountPercent">;
   label?: string;
   size?: "sm" | "md" | "lg";
   tone?: "forest" | "cream";

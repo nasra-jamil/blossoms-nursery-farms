@@ -6,7 +6,7 @@ import { ProductDetails } from "@/components/plants/ProductDetails";
 import { PlantGrid } from "@/components/plants/PlantGrid";
 import { Reveal } from "@/components/ui/Reveal";
 import { getAllPlants, getCategoryBySlug, getPlantBySlug, getRelatedPlants } from "@/lib/catalog";
-import { formatPrice } from "@/lib/format";
+import { discountOf, finalPrice, formatPrice } from "@/lib/format";
 import { site } from "@/lib/site";
 
 type Params = { params: Promise<{ slug: string }> };
@@ -20,7 +20,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const plant = await getPlantBySlug(slug);
   if (!plant) return {};
-  const title = `${plant.name} — ${formatPrice(plant.price)}`;
+  const d = discountOf(plant);
+  const title = `${plant.name} — ${formatPrice(finalPrice(plant))}${d ? ` (${d}% off)` : ""}`;
   return {
     title,
     description: `${plant.description} ${plant.sunlight}, ${plant.maintenance.toLowerCase()} care. Order ${plant.name} on WhatsApp from ${site.name}.`,
@@ -52,7 +53,7 @@ export default async function PlantPage({ params }: Params) {
     offers: {
       "@type": "Offer",
       priceCurrency: "PKR",
-      price: plant.price,
+      price: finalPrice(plant),
       availability:
         plant.availability === "out-of-stock" ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
       url: `${site.url}/plants/${plant.slug}`,

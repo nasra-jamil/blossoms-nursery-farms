@@ -1,20 +1,26 @@
 import { site } from "./site";
 import type { Plant } from "@/data/types";
-import { formatPrice } from "./format";
+import { discountOf, finalPrice, formatPrice } from "./format";
 
 export function whatsappUrl(message: string) {
   return `https://wa.me/${site.whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
 
-export function plantOrderMessage(plant: Pick<Plant, "name" | "price" | "slug">) {
+type OrderPlant = Pick<Plant, "name" | "price" | "slug" | "discountPercent">;
+
+export function plantOrderMessage(plant: OrderPlant) {
+  const d = discountOf(plant);
+  const price = d
+    ? `${formatPrice(finalPrice(plant))}, ${d}% off ${formatPrice(plant.price)}`
+    : formatPrice(plant.price);
   return (
-    `Hi! I am interested in ordering ${plant.name} (${formatPrice(plant.price)}). ` +
+    `Hi! I am interested in ordering ${plant.name} (${price}). ` +
     `Could you please share its availability and delivery details?\n\n` +
     `${site.url}/plants/${plant.slug}`
   );
 }
 
-export function plantOrderUrl(plant: Pick<Plant, "name" | "price" | "slug">) {
+export function plantOrderUrl(plant: OrderPlant) {
   return whatsappUrl(plantOrderMessage(plant));
 }
 

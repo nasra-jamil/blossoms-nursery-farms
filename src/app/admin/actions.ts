@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { MAX_DISCOUNT } from "@/lib/format";
 import { requireAdmin } from "@/lib/server/auth";
 import {
   SESSION_COOKIE,
@@ -69,6 +70,12 @@ const plantSchema = z.object({
   botanicalName: z.string().trim().max(120).default(""),
   category: slug,
   price: z.coerce.number().int("Whole rupees only").min(0).max(10_000_000),
+  discountPercent: z.coerce
+    .number()
+    .int("Whole numbers only")
+    .min(0, "Can't be negative")
+    .max(MAX_DISCOUNT, `At most ${MAX_DISCOUNT}%`)
+    .default(0),
   description: text(200, 10),
   details: text(2000, 10),
   images: z.array(image).min(1, "Add at least one image").max(8),

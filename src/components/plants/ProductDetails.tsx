@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { Droplets, Gauge, MapPin, Ruler, ShieldCheck, Sun, Truck, type LucideIcon } from "lucide-react";
 import type { Category, Plant } from "@/data/types";
-import { formatPrice } from "@/lib/format";
 import { Reveal } from "@/components/ui/Reveal";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { AvailabilityBadge } from "./AvailabilityBadge";
 import { ImageGallery } from "./ImageGallery";
+import { DiscountBadge, PriceTag } from "./PriceTag";
 
 function Spec({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
   return (
@@ -37,12 +37,13 @@ export function ProductDetails({ plant, category }: { plant: Plant; category: Ca
             {category.name}
           </Link>
           <AvailabilityBadge value={plant.availability} className="border border-forest/10" />
+          <DiscountBadge plant={plant} />
         </div>
 
         <h1 className="mt-5 font-display text-4xl leading-[1.05] tracking-tight text-forest sm:text-5xl">{plant.name}</h1>
         <p className="mt-2 text-sm text-charcoal/55 italic">{plant.botanicalName}</p>
 
-        <p className="mt-6 text-3xl font-semibold text-charcoal">{formatPrice(plant.price)}</p>
+        <PriceTag plant={plant} size="lg" className="mt-6" />
 
         <p className="mt-6 text-base leading-relaxed text-charcoal/75">{plant.details}</p>
 

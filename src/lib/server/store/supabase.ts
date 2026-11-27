@@ -18,6 +18,7 @@ type PlantRow = {
   botanical_name: string;
   category: string;
   price: number;
+  discount_percent?: number;
   description: string;
   details: string;
   images: PlantImage[];
@@ -41,6 +42,7 @@ const toPlant = (r: PlantRow): Plant => ({
   botanicalName: r.botanical_name,
   category: r.category,
   price: r.price,
+  discountPercent: r.discount_percent ?? 0,
   description: r.description,
   details: r.details,
   images: r.images ?? [],
@@ -61,6 +63,7 @@ const toPlantRow = (p: Plant): PlantRow => ({
   botanical_name: p.botanicalName ?? "",
   category: p.category,
   price: p.price,
+  discount_percent: p.discountPercent ?? 0,
   description: p.description,
   details: p.details,
   images: p.images,

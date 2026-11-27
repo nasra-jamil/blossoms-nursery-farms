@@ -17,6 +17,8 @@ export interface Plant {
   botanicalName: string;
   category: CategorySlug;
   price: number;
+  /** Whole-number percentage off `price` (0 = no discount). */
+  discountPercent?: number;
   /** One-line summary for cards */
   description: string;
   /** Long-form copy for the detail page */

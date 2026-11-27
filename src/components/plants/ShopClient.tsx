@@ -5,7 +5,7 @@ import { ChevronDown, Search, SlidersHorizontal, Sprout, X } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import type { Category, CategorySlug, Plant } from "@/data/types";
-import { cn } from "@/lib/format";
+import { cn, finalPrice } from "@/lib/format";
 import { PlantGrid } from "./PlantGrid";
 import {
   ProductFilters,
@@ -89,10 +89,10 @@ export function ShopClient({ plants, categories }: { plants: Plant[]; categories
     const sorted = [...list];
     switch (state.sort) {
       case "price-asc":
-        sorted.sort((a, b) => a.price - b.price);
+        sorted.sort((a, b) => finalPrice(a) - finalPrice(b));
         break;
       case "price-desc":
-        sorted.sort((a, b) => b.price - a.price);
+        sorted.sort((a, b) => finalPrice(b) - finalPrice(a));
         break;
       case "name":
         sorted.sort((a, b) => a.name.localeCompare(b.name));

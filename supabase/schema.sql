@@ -38,6 +38,11 @@ create table if not exists public.plants (
   updated_at     timestamptz not null default now()
 );
 
+-- Added after launch: percentage off `price` (0 = none). Safe on existing tables.
+alter table public.plants
+  add column if not exists discount_percent integer not null default 0
+  check (discount_percent between 0 and 90);
+
 create index if not exists plants_category_idx on public.plants (category);
 create index if not exists plants_sort_idx on public.plants (sort_order);
 

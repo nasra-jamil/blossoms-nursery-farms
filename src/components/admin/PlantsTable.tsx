@@ -8,7 +8,7 @@ import { useMemo, useState } from "react";
 import type { Category, Plant } from "@/data/types";
 import { deletePlant } from "@/app/admin/actions";
 import { AvailabilityBadge } from "@/components/plants/AvailabilityBadge";
-import { cn, formatPrice } from "@/lib/format";
+import { cn, discountOf, finalPrice, formatPrice } from "@/lib/format";
 import { ConfirmDelete } from "./ConfirmDelete";
 import { inputClass } from "./ui";
 
@@ -93,7 +93,15 @@ export function PlantsTable({ plants, categories }: { plants: Plant[]; categorie
                     </div>
                   </td>
                   <td className="px-4 py-3 text-charcoal/75">{p.categoryName}</td>
-                  <td className="px-4 py-3 font-medium whitespace-nowrap">{formatPrice(p.price)}</td>
+                  <td className="px-4 py-3 font-medium whitespace-nowrap">
+                    {formatPrice(finalPrice(p))}
+                    {discountOf(p) > 0 && (
+                      <span className="mt-0.5 block text-xs font-normal text-charcoal/50">
+                        <s>{formatPrice(p.price)}</s>{" "}
+                        <span className="font-semibold text-rose-700">−{discountOf(p)}%</span>
+                      </span>
+                    )}
+                  </td>
                   <td className="px-4 py-3">
                     <AvailabilityBadge value={p.availability} className="border border-forest/10" />
                   </td>

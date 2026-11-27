@@ -6,11 +6,15 @@ import { ArrowDown, ArrowUp, Plus, X } from "lucide-react";
 import { useState, useTransition } from "react";
 import type { Availability, Category, Maintenance, Placement, Plant, PlantImage } from "@/data/types";
 import { savePlant } from "@/app/admin/actions";
-import { cn } from "@/lib/format";
+import { cn, finalPrice, formatPrice, MAX_DISCOUNT } from "@/lib/format";
 import { ImageField } from "./ImageField";
 import { Card, Field, inputClass, slugify, textareaClass } from "./ui";
 
-type FormState = Omit<Plant, "id" | "categoryName" | "price" | "care"> & { price: string; care: string };
+type FormState = Omit<Plant, "id" | "categoryName" | "price" | "discountPercent" | "care"> & {
+  price: string;
+  discountPercent: string;
+  care: string;
+};
 
 const PLACEMENTS: Placement[] = ["Indoor", "Balcony", "Outdoor"];
 
@@ -21,6 +25,7 @@ function toForm(p: Plant | null, categories: Category[]): FormState {
     botanicalName: p?.botanicalName ?? "",
     category: p?.category ?? categories[0]?.slug ?? "",
     price: p ? String(p.price) : "",
+    discountPercent: p?.discountPercent ? String(p.discountPercent) : "",
     description: p?.description ?? "",
     details: p?.details ?? "",
     images: p?.images?.length ? p.images : [{ src: "", alt: "" }],
@@ -64,6 +69,7 @@ export function PlantForm({ plant, categories }: { plant: Plant | null; categori
         ...form,
         id: plant?.id,
         price: form.price,
+        discountPercent: form.discountPercent || "0",
         care: form.care.split("\n").map((l) => l.trim()).filter(Boolean),
         images: form.images.filter((img) => img.src.trim() || img.alt.trim()),
       });
@@ -254,6 +260,25 @@ export function PlantForm({ plant, categories }: { plant: Plant | null; categori
                 className={inputClass}
                 placeholder="e.g. 2500"
               />
+            </Field>
+            <Field label="Discount (%)" htmlFor="discountPercent" error={err("discountPercent")}>
+              <input
+                id="discountPercent"
+                inputMode="numeric"
+                value={form.discountPercent}
+                onChange={(e) => set("discountPercent", e.target.value.replace(/[^\d]/g, "").slice(0, 2))}
+                aria-invalid={Boolean(err("discountPercent"))}
+                aria-describedby="discount-help"
+                className={inputClass}
+                placeholder="0 = no discount"
+              />
+              <p id="discount-help" className="mt-1.5 text-xs text-charcoal/55" aria-live="polite">
+                {Number(form.discountPercent) > 0 && form.price
+                  ? Number(form.discountPercent) > MAX_DISCOUNT
+                    ? `Maximum is ${MAX_DISCOUNT}%.`
+                    : `Customers pay ${formatPrice(finalPrice({ price: Number(form.price), discountPercent: Number(form.discountPercent) }))} instead of ${formatPrice(Number(form.price))}.`
+                  : `Leave empty for no discount (up to ${MAX_DISCOUNT}%).`}
+              </p>
             </Field>
             <Field label="Availability" htmlFor="availability">
               <select id="availability" value={form.availability} onChange={(e) => set("availability", e.target.value as Availability)} className={inputClass}>

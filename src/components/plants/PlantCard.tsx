@@ -4,10 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import type { Plant } from "@/data/types";
-import { cn, formatPrice } from "@/lib/format";
+import { cn } from "@/lib/format";
 import { staggerItem } from "@/components/ui/Reveal";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { AvailabilityBadge } from "./AvailabilityBadge";
+import { DiscountBadge, PriceTag } from "./PriceTag";
 
 export function PlantCard({ plant, priority = false }: { plant: Plant; priority?: boolean }) {
   const cover = plant.images[0];
@@ -38,6 +39,7 @@ export function PlantCard({ plant, priority = false }: { plant: Plant; priority?
         />
         <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/15 to-transparent" />
         <AvailabilityBadge value={plant.availability} className="absolute top-3 left-3" />
+        <DiscountBadge plant={plant} className="absolute top-3 right-3" />
       </Link>
 
       <div className="flex flex-1 flex-col p-3.5 sm:p-5">
@@ -53,7 +55,7 @@ export function PlantCard({ plant, priority = false }: { plant: Plant; priority?
           {plant.description}
         </p>
         <div className="mt-auto pt-4">
-          <p className="mb-3 text-base font-semibold text-charcoal sm:text-lg">{formatPrice(plant.price)}</p>
+          <PriceTag plant={plant} className="mb-3" />
           <WhatsAppButton plant={plant} size="sm" className="w-full" label={soldOut ? "Ask on WhatsApp" : "Order"} />
         </div>
       </div>
