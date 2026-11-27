@@ -5,7 +5,7 @@ import { ChevronDown, Search, SlidersHorizontal, Sprout, X } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import type { Category, CategorySlug, Plant } from "@/data/types";
-import { cn, finalPrice } from "@/lib/format";
+import { cn, finalPrice, isOnSale, SALE_SLUG } from "@/lib/format";
 import { PlantGrid } from "./PlantGrid";
 import {
   ProductFilters,
@@ -26,7 +26,10 @@ export function ShopClient({ plants, categories }: { plants: Plant[]; categories
 
   const categoryParam = params.get("category");
   const state: FilterState = {
-    category: categories.some((c) => c.slug === categoryParam) ? (categoryParam as CategorySlug) : "all",
+    category:
+      categoryParam === SALE_SLUG || categories.some((c) => c.slug === categoryParam)
+        ? (categoryParam as CategorySlug)
+        : "all",
     availability: isAvailability(params.get("availability")) ? (params.get("availability") as AvailabilityFilter) : "all",
     sort: isSort(params.get("sort")) ? (params.get("sort") as SortKey) : "featured",
   };
@@ -80,12 +83,17 @@ export function ShopClient({ plants, categories }: { plants: Plant[]; categories
 
   const counts = useMemo(() => {
     const c: Record<string, number> = {};
-    for (const p of searchFiltered) c[p.category] = (c[p.category] ?? 0) + 1;
+    for (const p of searchFiltered) {
+      c[p.category] = (c[p.category] ?? 0) + 1;
+      if (isOnSale(p)) c[SALE_SLUG] = (c[SALE_SLUG] ?? 0) + 1;
+    }
     return c;
   }, [searchFiltered]);
 
   const results = useMemo(() => {
-    const list = searchFiltered.filter((p) => state.category === "all" || p.category === state.category);
+    const list = searchFiltered.filter((p) =>
+      state.category === "all" ? true : state.category === SALE_SLUG ? isOnSale(p) : p.category === state.category,
+    );
     const sorted = [...list];
     switch (state.sort) {
       case "price-asc":
@@ -103,7 +111,10 @@ export function ShopClient({ plants, categories }: { plants: Plant[]; categories
     return sorted;
   }, [searchFiltered, state.category, state.sort]);
 
-  const activeCategory = categories.find((c) => c.slug === state.category);
+  // Offer "Sale" whenever something is discounted (or when it's the active filter, so it can be unselected).
+  const hasSale = plants.some(isOnSale) || state.category === SALE_SLUG;
+  const activeCategory =
+    state.category === SALE_SLUG ? { name: "Sale" } : categories.find((c) => c.slug === state.category);
   const activeFilterCount = Number(state.category !== "all") + Number(state.availability !== "all");
   const resetAll = () => {
     setQuery("");
@@ -174,7 +185,7 @@ export function ShopClient({ plants, categories }: { plants: Plant[]; categories
 
         {/* Mobile category chips */}
         <div className="no-scrollbar -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 lg:hidden">
-          {[{ slug: "all" as const, name: "All" }, ...categories].map((c) => (
+          {[{ slug: "all", name: "All" }, ...(hasSale ? [{ slug: SALE_SLUG, name: "Sale" }] : []), ...categories].map((c) => (
             <button
               key={c.slug}
               type="button"
@@ -182,8 +193,12 @@ export function ShopClient({ plants, categories }: { plants: Plant[]; categories
               className={cn(
                 "min-h-10 shrink-0 rounded-full border px-4 text-[13px] font-medium whitespace-nowrap transition-colors",
                 state.category === c.slug
-                  ? "border-forest bg-forest text-cream"
-                  : "border-forest/15 bg-white text-charcoal/75",
+                  ? c.slug === SALE_SLUG
+                    ? "border-rose-600 bg-rose-600 text-white"
+                    : "border-forest bg-forest text-cream"
+                  : c.slug === SALE_SLUG
+                    ? "border-rose-200 bg-rose-50 text-rose-700"
+                    : "border-forest/15 bg-white text-charcoal/75",
               )}
             >
               {c.name}
@@ -201,6 +216,7 @@ export function ShopClient({ plants, categories }: { plants: Plant[]; categories
               total={searchFiltered.length}
               state={state}
               onChange={updateUrl}
+              hasSale={hasSale}
             />
           </div>
         </aside>
@@ -295,6 +311,7 @@ export function ShopClient({ plants, categories }: { plants: Plant[]; categories
                   total={searchFiltered.length}
                   state={state}
                   onChange={updateUrl}
+                  hasSale={hasSale}
                   showSort
                 />
               </div>

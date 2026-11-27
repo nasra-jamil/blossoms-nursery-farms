@@ -2,7 +2,7 @@
 
 import { Check } from "lucide-react";
 import type { Category, CategorySlug } from "@/data/types";
-import { cn } from "@/lib/format";
+import { cn, SALE_SLUG } from "@/lib/format";
 
 export type SortKey = "featured" | "price-asc" | "price-desc" | "name";
 export type AvailabilityFilter = "all" | "available" | "out-of-stock";
@@ -33,6 +33,8 @@ type Props = {
   state: FilterState;
   onChange: (patch: Partial<FilterState>) => void;
   showSort?: boolean;
+  /** Show the automatic "Sale" option (only when something is discounted). */
+  hasSale?: boolean;
 };
 
 function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
@@ -50,18 +52,26 @@ function Option({
   onSelect,
   label,
   count,
+  tone = "default",
 }: {
   name: string;
   checked: boolean;
   onSelect: () => void;
   label: string;
   count?: number;
+  tone?: "default" | "sale";
 }) {
   return (
     <label
       className={cn(
         "flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-xl px-3 text-sm transition-colors",
-        checked ? "bg-olive/70 font-semibold text-forest" : "text-charcoal/75 hover:bg-olive/35",
+        tone === "sale"
+          ? checked
+            ? "bg-rose-50 font-semibold text-rose-700"
+            : "text-rose-700 hover:bg-rose-50"
+          : checked
+            ? "bg-olive/70 font-semibold text-forest"
+            : "text-charcoal/75 hover:bg-olive/35",
       )}
     >
       <input type="radio" name={name} checked={checked} onChange={onSelect} className="sr-only" />
@@ -69,7 +79,13 @@ function Option({
         <span
           className={cn(
             "flex size-4 items-center justify-center rounded-full border transition-colors",
-            checked ? "border-forest bg-forest text-cream" : "border-forest/30",
+            checked
+              ? tone === "sale"
+                ? "border-rose-600 bg-rose-600 text-white"
+                : "border-forest bg-forest text-cream"
+              : tone === "sale"
+                ? "border-rose-300"
+                : "border-forest/30",
           )}
           aria-hidden="true"
         >
@@ -83,7 +99,7 @@ function Option({
 }
 
 /** Category / availability / sort controls. Used in the desktop sidebar and the mobile drawer. */
-export function ProductFilters({ categories, counts, total, state, onChange, showSort = false }: Props) {
+export function ProductFilters({ categories, counts, total, state, onChange, showSort = false, hasSale = false }: Props) {
   return (
     <div className="space-y-6">
       <FilterGroup title="Category">
@@ -94,6 +110,16 @@ export function ProductFilters({ categories, counts, total, state, onChange, sho
           label="All plants"
           count={total}
         />
+        {hasSale && (
+          <Option
+            name="category"
+            checked={state.category === SALE_SLUG}
+            onSelect={() => onChange({ category: SALE_SLUG })}
+            label="Sale"
+            count={counts[SALE_SLUG] ?? 0}
+            tone="sale"
+          />
+        )}
         {categories.map((c) => (
           <Option
             key={c.slug}

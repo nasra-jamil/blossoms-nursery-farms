@@ -10,6 +10,7 @@ import {
   Salad,
   Shrub,
   Sofa,
+  Tag,
   Sparkles,
   Leaf,
   TreeDeciduous,
@@ -17,12 +18,13 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { Category, CategorySlug } from "@/data/types";
-import { cn } from "@/lib/format";
+import { cn, SALE_SLUG } from "@/lib/format";
 
 export type SidebarValue = CategorySlug | "featured";
 
 const icons: Partial<Record<SidebarValue, LucideIcon>> = {
   featured: Sparkles,
+  [SALE_SLUG]: Tag,
   "indoor-plants": Sofa,
   "balcony-plants": Fence,
   "outdoor-plants": Trees,
@@ -37,6 +39,8 @@ type Props = {
   categories: Category[];
   counts: Partial<Record<CategorySlug, number>>;
   featuredCount: number;
+  /** Discounted plants; the Sale entry is hidden when this is 0. */
+  saleCount: number;
   active: SidebarValue;
   onSelect: (value: SidebarValue) => void;
 };
@@ -45,9 +49,10 @@ type Props = {
  * Plant category navigation: a sticky vertical list on desktop and a
  * horizontally scrolling chip row on smaller screens.
  */
-export function CategorySidebar({ categories, counts, featuredCount, active, onSelect }: Props) {
+export function CategorySidebar({ categories, counts, featuredCount, saleCount, active, onSelect }: Props) {
   const items: { value: SidebarValue; label: string; count: number }[] = [
     { value: "featured", label: "Featured", count: featuredCount },
+    ...(saleCount > 0 ? [{ value: SALE_SLUG, label: "Sale", count: saleCount }] : []),
     ...categories.map((c) => ({ value: c.slug, label: c.name, count: counts[c.slug] ?? 0 })),
   ];
 
@@ -66,7 +71,13 @@ export function CategorySidebar({ categories, counts, featuredCount, active, onS
                 aria-pressed={isActive}
                 className={cn(
                   "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-[13px] font-medium whitespace-nowrap transition-colors",
-                  isActive ? "border-forest bg-forest text-cream" : "border-forest/15 bg-white text-charcoal/75",
+                  value === SALE_SLUG
+                    ? isActive
+                      ? "border-rose-600 bg-rose-600 text-white"
+                      : "border-rose-200 bg-rose-50 text-rose-700"
+                    : isActive
+                      ? "border-forest bg-forest text-cream"
+                      : "border-forest/15 bg-white text-charcoal/75",
                 )}
               >
                 <Icon size={16} strokeWidth={1.8} aria-hidden="true" />
@@ -92,20 +103,28 @@ export function CategorySidebar({ categories, counts, featuredCount, active, onS
                   aria-pressed={isActive}
                   className={cn(
                     "group relative flex min-h-11 w-full items-center gap-3 rounded-2xl px-3 text-left text-sm transition-colors",
-                    isActive ? "font-semibold text-cream" : "text-charcoal/75 hover:bg-olive/50 hover:text-forest",
+                    isActive
+                      ? "font-semibold text-cream"
+                      : value === SALE_SLUG
+                        ? "font-medium text-rose-700 hover:bg-rose-50"
+                        : "text-charcoal/75 hover:bg-olive/50 hover:text-forest",
                   )}
                 >
                   {isActive && (
                     <motion.span
                       layoutId="category-sidebar-pill"
-                      className="absolute inset-0 -z-10 rounded-2xl bg-forest"
+                      className={cn("absolute inset-0 -z-10 rounded-2xl", value === SALE_SLUG ? "bg-rose-600" : "bg-forest")}
                       transition={{ type: "spring", stiffness: 380, damping: 32 }}
                     />
                   )}
                   <span
                     className={cn(
                       "flex size-8 shrink-0 items-center justify-center rounded-xl transition-colors",
-                      isActive ? "bg-cream/15 text-cream" : "bg-olive/60 text-forest group-hover:bg-olive",
+                      isActive
+                        ? "bg-cream/15 text-cream"
+                        : value === SALE_SLUG
+                          ? "bg-rose-100 text-rose-700"
+                          : "bg-olive/60 text-forest group-hover:bg-olive",
                     )}
                   >
                     <Icon size={16} strokeWidth={1.8} aria-hidden="true" />

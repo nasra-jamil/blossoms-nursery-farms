@@ -7,6 +7,7 @@ import type { Category, CategorySlug, Plant } from "@/data/types";
 import { Button } from "@/components/ui/Button";
 import { PlantGrid } from "@/components/plants/PlantGrid";
 import { CategorySidebar, type SidebarValue } from "@/components/plants/CategorySidebar";
+import { isOnSale, SALE_SLUG } from "@/lib/format";
 
 const LIMIT = 6;
 
@@ -14,16 +15,19 @@ export function FeaturedPlants({ plants, categories }: { plants: Plant[]; catego
   const [active, setActive] = useState<SidebarValue>("featured");
 
   const featured = useMemo(() => plants.filter((p) => p.featured), [plants]);
+  const onSale = useMemo(() => plants.filter(isOnSale), [plants]);
   const counts = useMemo(() => {
     const c: Partial<Record<CategorySlug, number>> = {};
     for (const p of plants) c[p.category] = (c[p.category] ?? 0) + 1;
     return c;
   }, [plants]);
 
-  const list = active === "featured" ? featured : plants.filter((p) => p.category === active);
+  const list =
+    active === "featured" ? featured : active === SALE_SLUG ? onSale : plants.filter((p) => p.category === active);
   const visible = list.slice(0, LIMIT);
-  const moreHref = active === "featured" ? "/shop" : `/categories/${active}`;
-  const activeName = categories.find((c) => c.slug === active)?.name;
+  const moreHref =
+    active === "featured" ? "/shop" : active === SALE_SLUG ? `/shop?category=${SALE_SLUG}` : `/categories/${active}`;
+  const activeName = active === SALE_SLUG ? "sale plants" : categories.find((c) => c.slug === active)?.name;
 
   return (
     <section className="bg-olive/35">
@@ -40,6 +44,7 @@ export function FeaturedPlants({ plants, categories }: { plants: Plant[]; catego
               categories={categories}
               counts={counts}
               featuredCount={featured.length}
+              saleCount={onSale.length}
               active={active}
               onSelect={setActive}
             />

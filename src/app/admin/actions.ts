@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { MAX_DISCOUNT } from "@/lib/format";
+import { MAX_DISCOUNT, SALE_SLUG } from "@/lib/format";
 import { requireAdmin } from "@/lib/server/auth";
 import {
   SESSION_COOKIE,
@@ -92,7 +92,7 @@ const plantSchema = z.object({
 const categorySchema = z.object({
   originalSlug: z.string().optional(),
   name: text(60, 2),
-  slug,
+  slug: slug.refine((s) => s !== SALE_SLUG, "“sale” is reserved for the automatic Sale category"),
   description: text(200, 10),
   image,
 });

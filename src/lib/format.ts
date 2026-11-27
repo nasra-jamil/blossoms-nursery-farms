@@ -12,6 +12,13 @@ export function discountOf(plant: { discountPercent?: number }) {
   return Number.isFinite(d) ? Math.min(Math.max(d, 0), MAX_DISCOUNT) : 0;
 }
 
+/**
+ * "Sale" is an automatic category: every plant with a discount. Its slug is
+ * reserved so an admin-made category can't clash with it.
+ */
+export const SALE_SLUG = "sale";
+export const isOnSale = (plant: { discountPercent?: number }) => discountOf(plant) > 0;
+
 /** The price the customer pays after any discount, rounded to whole rupees. */
 export function finalPrice(plant: { price: number; discountPercent?: number }) {
   return Math.round((plant.price * (100 - discountOf(plant))) / 100);
