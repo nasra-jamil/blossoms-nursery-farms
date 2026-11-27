@@ -12,7 +12,7 @@ export const site = {
   address: "Pattoki, District Kasur, Punjab, Pakistan",
   hours: "Mon – Sun, 8:00 am – 10:00 pm",
   social: {
-    instagram: "https://instagram.com/",
+    instagram: "https://www.instagram.com/bnfp_attoki",
     facebook: "https://www.facebook.com/share/1dYu7iuypK/",
   },
 };
